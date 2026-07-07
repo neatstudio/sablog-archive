@@ -585,7 +585,7 @@ if ($action == 'show') {
 		//附件
 		if ($article['attachments']) {
 			$attachs = $tmark = '';
-			$attachdb= unserialize(stripslashes_array($article['attachments']));
+			$attachdb= unserialize($article['attachments']);
 			if (is_array($attachdb)) {
 				foreach ($attachdb AS $attach) {
 					$a_path = '../'.$options['attachments_dir'].'/'.$attach['filepath'];

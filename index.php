@@ -166,7 +166,7 @@ if(in_array($action, ['index', 'finduser', 'search', 'tags'])){
                     if(empty($article['description'])){
                         //附件
                         if($article['attachments']){
-                            $attachs = unserialize(stripslashes_array($article['attachments']));
+                            $attachs = unserialize($article['attachments']);
                             if(is_array($attachs)){
                                 foreach($attachs AS $attach){
                                     $a_path = $options['attachments_dir'] . '/' . $attach['filepath'];
@@ -366,7 +366,7 @@ elseif($_GET['action'] == 'show'){
         //附件
         if($article['attachments']){
             require_once(SABLOG_ROOT . 'include/func_attachment.php');
-            $attachs = unserialize(stripslashes_array($article['attachments']));
+            $attachs = unserialize($article['attachments']);
             if(is_array($attachs)){
                 foreach($attachs AS $attach){
                     $a_path = $options['attachments_dir'] . $attach['filepath'];

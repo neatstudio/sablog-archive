@@ -53,7 +53,7 @@ if ($article['readpassword']) {
 
 	//附件
 	if ($article['attachments']) {
-		$attachs= unserialize(stripslashes_array($article['attachments']));
+		$attachs= unserialize($article['attachments']);
 		if (is_array($attachs)) {
 			$attachnum = 0;
 			foreach ($attachs AS $attach) {

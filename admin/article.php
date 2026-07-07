@@ -217,7 +217,7 @@ if($_POST['action'] == 'modarticle') {
 	$oldattach=array();	
 	$aid = $article['attachments'];
 	if ($aid){
-		$oldattach = unserialize(stripslashes_array($aid));
+		$oldattach = unserialize($aid);
 		$nokeep = array();
 		foreach ($oldattach AS $id => $value){
 			if (!@in_array($id,$_POST['keep'])){
@@ -232,7 +232,7 @@ if($_POST['action'] == 'modarticle') {
 	$replacearray = array();
 	require_once(SABLOG_ROOT.'admin/uploadfiles.php');
 	if ($attachs){
-		$attachs=unserialize(stripslashes_array($attachs));
+		$attachs=unserialize($attachs);
 		foreach ($attachs as $key=>$value){
 			$oldattach[$key]=$value;
 		}
@@ -649,7 +649,7 @@ if ($action == 'list') {
 	$articledb = array();
     while ($article = $DB->fetch_array($query)) {
 		if ($article['attachments']) {
-			$article['attachments'] = count(unserialize(stripslashes_array($article['attachments'])));
+			$article['attachments'] = count(unserialize($article['attachments']));
 			$article['attachment'] = '<a href="admincp.php?job=attachment&action=list&amp;articleid='.$article['articleid'].'">操作</a>('.$article['attachments'].')';
 		} else {
 			$article['attachment'] = '<a href="admincp.php?job=attachment&action=list&amp;articleid='.$article['articleid'].'"><span class="yes">上传</span></a>';

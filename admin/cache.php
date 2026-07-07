@@ -170,7 +170,7 @@ if ($action == 'dothumbdata') {
 		}
 		$DB->unbuffered_query("UPDATE {$db_prefix}attachments SET thumb_filepath='".$attach_data['thumbfilepath']."', thumb_width='".$attach_data['thumbwidth']."', thumb_height='".$attach_data['thumbheight']."' WHERE attachmentid='".$attach['attachmentid']."'");
 		$article = $DB->fetch_one_array("SELECT attachments FROM {$db_prefix}articles WHERE articleid='".$attach['articleid']."'");
-		$attachs = unserialize(stripslashes_array($article['attachments']));
+		$attachs = unserialize($article['attachments']);
 		@extract($attachs[$attach['attachmentid']]);
 		$attachs[$attach['attachmentid']]['thumb_filepath'] = $attach_data['thumbfilepath'];
 		$attachs[$attach['attachmentid']]['thumb_width'] = $attach_data['thumbwidth'];

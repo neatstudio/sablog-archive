@@ -58,7 +58,7 @@ if (!$attachmentid){
 	if (!$article) {
 		message('附件无效', './');
 	} else {
-		$attach = unserialize(stripslashes_array($article['attachments']));
+		$attach = unserialize($article['attachments']);
 		if (!$attach[$attachmentid]) {
 			message('附件无效', './');
 		} else {
