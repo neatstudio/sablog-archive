@@ -14,7 +14,7 @@ print <<<EOT
   <dd style="width:280px"><a href='https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral'><img src="https://www.upyun.com/static/img/%E6%A0%B7%E5%BC%8F%E5%9B%BE.7cf927c.png" width="100%"/></a></dd>
   -->
 </dl>
-https://your-domain.com ::: Copyright &copy; 2004-2006 <a href="$options[url]">$options[name]</a><!--
+https://neatstudio.com ::: Copyright &copy; 2004-2006 <a href="$options[url]">$options[name]</a><!--
 EOT;
 if($options['show_debug']){print <<<EOT
 --><br />$sa_debug<!--
@@ -26,7 +26,7 @@ print <<<EOT
 EOT;
 if($options['icp']){print <<<EOT
 -->
-<a href="https://beian.miit.gov.cn/" target="_blank">$options[icp]</a> &nbsp; <a href="$options[url]" target="_blank" style="text-decoration:none">　&nbsp;</a>
+<a href="https://beian.miit.gov.cn/" target="_blank">$options[icp]</a> &nbsp; <a href="https://neatstudio.com" target="_blank" style="text-decoration:none">　&nbsp;</a>
 <!--
 EOT;
 }print <<<EOT
@@ -41,6 +41,19 @@ EOT;
 jquery(function(){
    if ( jquery.support.pjax ) {
       jquery(document).pjax('a','#page');
+      // 添加 PJAX 过渡动画，减少页面闪烁感
+      jquery(document).on('pjax:click', function() {
+         jquery('#page').css('opacity', '0.6');
+      });
+      jquery(document).on('pjax:send', function() {
+         jquery('#page').css('opacity', '0.6');
+      });
+      jquery(document).on('pjax:complete', function() {
+         jquery('#page').css('opacity', '1');
+      });
+      jquery(document).on('pjax:error', function() {
+         jquery('#page').css('opacity', '1');
+      });
    }
 })
 </script>
