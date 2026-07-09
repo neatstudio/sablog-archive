@@ -43,15 +43,9 @@ print <<<EOT
 $stylevar[include_jquery]
 <script>$stylevar[jquery_tab]</script>
 $stylevar[ggad2]
-<style>
-#page-loading { position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; z-index:99999; }
-#page-loading.done { display:none; }
-</style>
 <title>$options[title]（Neatstudio.COM）</title>
 </head>
 <body>
-<div id="page-loading"></div>
-<script>document.addEventListener('DOMContentLoaded', function(){ document.getElementById('page-loading').className='done'; });</script>
 <div id="outmain">
 <div id="header">
     <div>
