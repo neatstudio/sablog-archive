@@ -374,6 +374,7 @@ function PageEnd()
         ], $output);
     }
     echo $output;
+    flush();
     exit;
 }
 
