@@ -24,15 +24,20 @@
 ```
 ├── admin/          # 后台管理
 ├── archives/       # 文章归档
-├── attachment/     # 附件上传目录
+├── attachments/    # 附件上传目录
 ├── cache/          # 缓存目录（需可写）
+├── images/         # 图片资源
 ├── include/        # 核心函数库
 ├── templates/      # 模板目录
 │   ├── admin/      # 后台模板
 │   └── default/    # 前台模板
-├── wap/            # 手机版
 ├── config.php      # 数据库配置文件
 ├── index.php       # 入口文件
+├── global.php      # 全局函数
+├── attachment.php  # 附件下载
+├── post.php        # 文章发布/编辑
+├── rss.php         # RSS 订阅
+├── sitemap.php     # 站点地图
 └── ...
 ```
 
@@ -42,6 +47,10 @@
 - 后台路径：`/admin/admincp.php`
 - 默认管理员账号需在安装时设置
 - 所有硬编码的域名、品牌信息已替换为占位符，使用前请根据实际修改
+
+## 更新日志
+
+详见 [CHANGELOG.md](CHANGELOG.md)
 
 ## 许可证
 
