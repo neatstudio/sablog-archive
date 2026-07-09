@@ -39,26 +39,10 @@ EOT;
 <script type="text/JavaScript">
 //alimama_domain_auth="1268879_10700647";
 jquery(function(){
-   if ( jquery.support.pjax ) {
-      jquery(document).pjax('a','#page');
-      // 添加 PJAX 过渡动画，减少页面闪烁感
-      // 点击时立即淡出并清空内容，避免旧内容残留
-      jquery(document).on('pjax:click', function() {
-         jquery('#page').fadeTo(100, 0.3);
-      });
-      // 开始发送请求时保持半透明
-      jquery(document).on('pjax:start', function() {
-         jquery('#page').css('opacity', '0.3');
-      });
-      // 收到响应后淡入新内容
-      jquery(document).on('pjax:end', function() {
-         jquery('#page').fadeTo(200, 1);
-      });
-      // 出错时恢复正常显示
-      jquery(document).on('pjax:error', function() {
-         jquery('#page').fadeTo(200, 1);
-      });
-   }
+   // 禁用 PJAX，使用传统整页刷新以避免闪烁问题
+   // if ( jquery.support.pjax ) {
+   //    jquery(document).pjax('a','#page');
+   // }
 })
 </script>
 </body></html><!--
