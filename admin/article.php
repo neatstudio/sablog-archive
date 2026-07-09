@@ -29,6 +29,7 @@ if(!defined('SABLOG_ROOT') || !isset($php_self) || !preg_match("/[\/\\\\]admincp
 	exit('Access Denied');
 }
 
+
 // 加载附件相关函数
 require_once(SABLOG_ROOT.'include/func_attachment.php');
 
@@ -170,6 +171,7 @@ if($_POST['action'] == 'addarticle') {
 //修改文章
 
 if($_POST['action'] == 'modarticle') {
+	
 	$title       = trim($_POST['title']);
 	$articleid    = intval($_POST['articleid']);
 	$cid		  = intval($_POST['cid']);
@@ -217,10 +219,14 @@ if($_POST['action'] == 'modarticle') {
 	$oldattach=array();	
 	$aid = $article['attachments'];
 	if ($aid){
-		$oldattach = unserialize($aid);
+		$oldattach = unserialize(stripslashes_array($aid));
+		if (!is_array($oldattach)) {
+			$oldattach = array();
+		}
 		$nokeep = array();
+		$keep_arr = isset($_POST['keep']) && is_array($_POST['keep']) ? $_POST['keep'] : array();
 		foreach ($oldattach AS $id => $value){
-			if (!@in_array($id,$_POST['keep'])){
+			if (!in_array($id, $keep_arr)){
 				$nokeep[$id]['filepath'] = $value['filepath'];
 				$nokeep[$id]['thumb_filepath'] = $value['thumb_filepath'];
 				unset($oldattach[$id]);
@@ -232,12 +238,14 @@ if($_POST['action'] == 'modarticle') {
 	$replacearray = array();
 	require_once(SABLOG_ROOT.'admin/uploadfiles.php');
 	if ($attachs){
-		$attachs=unserialize($attachs);
-		foreach ($attachs as $key=>$value){
-			$oldattach[$key]=$value;
+		$attachs=unserialize(stripslashes_array($attachs));
+		if (is_array($attachs)) {
+			foreach ($attachs as $key=>$value){
+				$oldattach[$key]=$value;
+			}
 		}
 	}
-	if ($oldattach){
+	if (is_array($oldattach)) {
 		$oldattach=addslashes(serialize($oldattach));
 	} else {
 		$oldattach='';
@@ -293,6 +301,7 @@ if($_POST['action'] == 'modarticle') {
 	categories_recache();
 	statistics_recache();
     redirect('修改文章成功', 'admincp.php?job=article&action=list');
+	
 }
 
 //设置状态
@@ -649,7 +658,12 @@ if ($action == 'list') {
 	$articledb = array();
     while ($article = $DB->fetch_array($query)) {
 		if ($article['attachments']) {
-			$article['attachments'] = count(unserialize($article['attachments']));
+			$attachs = unserialize(stripslashes_array($article['attachments']));
+			if (is_array($attachs)) {
+				$article['attachments'] = count($attachs);
+			} else {
+				$article['attachments'] = 0;
+			}
 			$article['attachment'] = '<a href="admincp.php?job=attachment&action=list&amp;articleid='.$article['articleid'].'">操作</a>('.$article['attachments'].')';
 		} else {
 			$article['attachment'] = '<a href="admincp.php?job=attachment&action=list&amp;articleid='.$article['articleid'].'"><span class="yes">上传</span></a>';

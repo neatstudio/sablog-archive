@@ -25,7 +25,8 @@
 // Copyright (C) Security Angel Team All Rights Reserved.
 // ==============================================================//
 
-// 加载后台函数集合
+// 加载后台函数集合
+
 require_once('global.php');
 
 if ($sax_group == 1) {
@@ -59,6 +60,7 @@ if (!$job) {
 }
 
 $subnav = '';
+
 if (file_exists($job.'.php')) {
 	include ($job.'.php');
 } else {

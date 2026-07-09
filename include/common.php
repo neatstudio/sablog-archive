@@ -337,11 +337,9 @@ function char_cv($string)
 function PageEnd()
 {
     global $options;
-    $output = str_replace(['<!--<!---->', '<!---->'], ['', ''], ob_get_contents());
+    $ob_contents = ob_get_contents();
+    $output = str_replace(['<!--<!---->', '<!---->'], ['', ''], $ob_contents);
     ob_end_clean();
-    $options['gzipcompress']
-        ? ob_start('ob_gzhandler')
-        : ob_start();
     if($options['rewrite_enable']){
         require_once(SABLOG_ROOT . 'include/func_rewrite.php');
         $searcharray = [

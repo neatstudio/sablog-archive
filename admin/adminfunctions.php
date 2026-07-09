@@ -33,8 +33,13 @@ function cpheader($shownav = 1) {
 
 // 操作提示页面
 function redirect($msg, $url = 'javascript:history.go(-1);', $min='2') {
+	
 	include PrintEot('redirect');
-	PageEnd();
+	// 直接刷新缓冲区并退出，避免 PageEnd() 的 ob_get_contents() 问题
+	if (ob_get_level() > 0) {
+		ob_end_flush();
+	}
+	exit;
 }
 
 // 控制面板各页面页脚
@@ -45,7 +50,11 @@ function cpfooter() {
 	$gzip = $options['gzipcompress'] ? 'enabled' : 'disabled';
 	$debuginfo = 'Processed in '.$totaltime.' second(s), '.$DB->querycount.' queries, Gzip '.$gzip;
 	include PrintEot('footer');
-	PageEnd();
+	// 直接刷新缓冲区并退出，避免 PageEnd() 的 ob_get_contents() 问题
+	if (ob_get_level() > 0) {
+		ob_end_flush();
+	}
+	exit;
 }
 
 function PrintEot($template){

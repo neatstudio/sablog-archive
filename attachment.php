@@ -1,4 +1,4 @@
-<?php
+<?php
 // ========================== 文件说明 ==========================//
 // 本文件说明：附件输出
 // --------------------------------------------------------------//
@@ -23,9 +23,9 @@
 // Apache/2.0.55 & PHP/5.1.1 & MySQL/5.0.15
 // --------------------------------------------------------------//
 // Copyright (C) Security Angel Team All Rights Reserved.
-// ==============================================================//
+// ==============================================================//
 
-// 加载前台常用函数
+// 加载前台常用函数
 require_once('global.php');
 if ($options['remote_open']) {
 	$uinfo = parse_url($options['url']);
@@ -44,22 +44,37 @@ if ($options['remote_open']) {
 		message('附件禁止从地址栏直接输入或从其他站点链接访问', './');
 	}
 }
-
-// 查询文章
-$attachmentid = intval($_GET['id']);
-if (!$attachmentid){
-	message('缺少参数', './');
-} else {
-	$attachinfo = $DB->fetch_one_array("SELECT at.*, ar.visible, ar.articleid as artid FROM {$db_prefix}attachments at LEFT JOIN {$db_prefix}articles ar ON (ar.articleid=at.articleid) WHERE ar.visible='1' AND at.attachmentid='$attachmentid'");
-	if (!$attachinfo) {
-		message('附件无效', './');
+
+// 查询文章
+$attachmentid = intval($_GET['id']);
+if (!$attachmentid){
+	message('缺少参数', './');
+} else {
+	$attachinfo = $DB->fetch_one_array("SELECT at.*, ar.articleid as artid FROM {$db_prefix}attachments at LEFT JOIN {$db_prefix}articles ar ON (ar.articleid=at.articleid) WHERE at.attachmentid='$attachmentid'");
+	if (!$attachinfo) {
+		message('附件无效', './');
 	}
 	$article = $DB->fetch_one_array("SELECT articleid,attachments FROM {$db_prefix}articles WHERE articleid='".$attachinfo['artid']."'");
 	if (!$article) {
 		message('附件无效', './');
 	} else {
-		$attach = unserialize($article['attachments']);
-		if (!$attach[$attachmentid]) {
+		$attach = unserialize(stripslashes_array($article['attachments']));
+		if (!$attach || !is_array($attach) || !isset($attach[$attachmentid])) {
+			// 如果 articles.attachments 为空、损坏或不包含此附件ID，直接从 attachments 表获取
+			$attach = array();
+			$attach[$attachmentid] = array(
+				'attachmentid' => $attachinfo['attachmentid'],
+				'articleid' => $attachinfo['articleid'],
+				'filename' => $attachinfo['filename'],
+				'filetype' => $attachinfo['filetype'],
+				'filesize' => $attachinfo['filesize'],
+				'filepath' => $attachinfo['filepath'],
+				'thumb_filepath' => $attachinfo['thumb_filepath'],
+				'downloads' => $attachinfo['downloads'],
+				'dateline' => $attachinfo['dateline']
+			);
+		}
+		if (!isset($attach[$attachmentid])) {
 			message('附件无效', './');
 		} else {
 			@extract($attach[$attachmentid]);
@@ -69,7 +84,7 @@ if (!$attachmentid){
 			$DB->unbuffered_query("UPDATE {$db_prefix}attachments SET downloads=downloads+1 WHERE attachmentid='$attachmentid'");
 			$DB->unbuffered_query("UPDATE {$db_prefix}articles SET attachments='$attach' WHERE articleid='".$article['articleid']."'");
 		}
-	}	
+	}	
 }
 
 $filepath = SABLOG_ROOT.$options['attachments_dir'].$attachinfo['filepath'];
@@ -86,11 +101,11 @@ if (stristr($attachinfo['filetype'], 'image')){
 $attachment = $isimage ? ($options['display_attach'] ? 'inline' : 'attachment') : 'attachment';
 $attachinfo['filetype'] = $attachinfo['filetype'] ? $attachinfo['filetype'] : 'unknown/unknown';
 
-
+
 if(is_readable($filepath)) {
-	ob_end_clean();
-	header('Cache-control: max-age=31536000');
-	header('Expires: ' . gmdate('D, d M Y H:i:s',$timestamp+31536000) . ' GMT');
+	ob_end_clean();
+	header('Cache-control: max-age=31536000');
+	header('Expires: ' . gmdate('D, d M Y H:i:s',$timestamp+31536000) . ' GMT');
 	header('Last-Modified: ' . gmdate('D, d M Y H:i:s',$attachinfo['dateline']) . ' GMT');
 	header('Content-Encoding: none');
 	header('Content-type: '.$attachinfo['filetype']);
@@ -99,8 +114,8 @@ if(is_readable($filepath)) {
 	$fp = fopen($filepath, 'rb'); 
 	fpassthru($fp);
 	fclose($fp);
-	exit;
-} else {
-	message('读取附件失败', './');
-}
+	exit;
+} else {
+	message('读取附件失败', './');
+}
 ?>

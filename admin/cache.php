@@ -23,7 +23,7 @@
 // Apache/2.0.55 & PHP/5.1.1 & MySQL/5.0.15
 // --------------------------------------------------------------//
 // Copyright (C) Security Angel Team All Rights Reserved.
-// ==============================================================//
+// ==============================================================//
 
 if(!defined('SABLOG_ROOT') || !isset($php_self) || !preg_match("/[\/\\\\]admincp\.php$/", $php_self)) {
 	exit('Access Denied');
@@ -42,7 +42,7 @@ if ($action == 'delsearchlog') {
 	$DB->unbuffered_query("TRUNCATE TABLE {$db_prefix}searchindex");
 	redirect('搜索记录已经清空', $url);
 }
-	
+	
 // 更新首页统计
 if ($action == 'dostatsdata') {
 	// 更新首页显示的分类数
@@ -170,7 +170,10 @@ if ($action == 'dothumbdata') {
 		}
 		$DB->unbuffered_query("UPDATE {$db_prefix}attachments SET thumb_filepath='".$attach_data['thumbfilepath']."', thumb_width='".$attach_data['thumbwidth']."', thumb_height='".$attach_data['thumbheight']."' WHERE attachmentid='".$attach['attachmentid']."'");
 		$article = $DB->fetch_one_array("SELECT attachments FROM {$db_prefix}articles WHERE articleid='".$attach['articleid']."'");
-		$attachs = unserialize($article['attachments']);
+		$attachs = unserialize(stripslashes_array($article['attachments']));
+		if (!is_array($attachs)) {
+			$attachs = array();
+		}
 		@extract($attachs[$attach['attachmentid']]);
 		$attachs[$attach['attachmentid']]['thumb_filepath'] = $attach_data['thumbfilepath'];
 		$attachs[$attach['attachmentid']]['thumb_width'] = $attach_data['thumbwidth'];
@@ -198,24 +201,24 @@ if ($action == 'closeurlseo') {
 	settings_recache();
 	redirect('已经关闭URL优化功能.', 'admincp.php?job=cache&action=rewrite_1');
 }
-
-if ($action == 'update') {
-	switch($_GET['id']) {
-		case 'links':
-			links_recache();
-			redirect('友情链接缓存已经更新', $url);
-			break;
-		case 'newcomments':
-			newcomments_recache();
-			redirect('侧边栏显示的最新评论缓存已经更新', $url);
-			break;
-		case 'settings':
-			settings_recache();
-			redirect('常规选项缓存已经更新', $url);
-			break;
-		case 'categories':
-			categories_recache();
-			redirect('侧边栏分类缓存已经更新', $url);
+
+if ($action == 'update') {
+	switch($_GET['id']) {
+		case 'links':
+			links_recache();
+			redirect('友情链接缓存已经更新', $url);
+			break;
+		case 'newcomments':
+			newcomments_recache();
+			redirect('侧边栏显示的最新评论缓存已经更新', $url);
+			break;
+		case 'settings':
+			settings_recache();
+			redirect('常规选项缓存已经更新', $url);
+			break;
+		case 'categories':
+			categories_recache();
+			redirect('侧边栏分类缓存已经更新', $url);
 			break;
 		case 'statistics':
 			statistics_recache();
@@ -232,24 +235,24 @@ if ($action == 'update') {
 		case 'stylevars':
 			stylevars_recache();
 			redirect('自定义模板变量缓存已经更新', $url);
-			break;
-		default:
-			redirect('请选择需要更新的缓存', $url);
-			break;
-	}
-}
+			break;
+		default:
+			redirect('请选择需要更新的缓存', $url);
+			break;
+	}
+}
 
 if(!$action || $action == 'cache') {
-	require_once(SABLOG_ROOT.'include/func_attachment.php');
+	require_once(SABLOG_ROOT.'include/func_attachment.php');
 	$cachedesc = array(
 		'archives'	  => '文章归档',
 		'categories'  => '侧边栏分类',
 		'hottags'     => '侧边栏热门标签',
 		'links'		  => '友情链接',
-		'newcomments' => '侧边栏显示的最新评论',
+		'newcomments' => '侧边栏显示的最新评论',
 		'settings'    => '常规选项',
 		'statistics'  => '站点统计信息',
-		'stylevars'   => '自定义模板变量'
+		'stylevars'   => '自定义模板变量'
 	);
 	$cachedb = array();
 	foreach ($cachedesc AS $name => $desc)	{
@@ -269,9 +272,9 @@ if(!$action || $action == 'cache') {
 	}
 	unset($cachefile);
 	$subnav = '缓存管理';
-}
-
-// 查看缓存
+}
+
+// 查看缓存
 if ($action == 'show') {
 	$name = $_GET['id'];	
 	$name = in_array($name, array('archives', 'categories', 'hottags', 'links', 'newcomments', 'settings', 'statistics','stylevars')) ? $name : '';
@@ -282,10 +285,10 @@ if ($action == 'show') {
 			$cachedata = fread($fp,filesize($filepath));
 			$cachedata = str_replace("<?php\r\n//Sablog-X cache file\r\n",'',$cachedata);
 			$cachedata = str_replace("\r\nif(!defined('SABLOG_ROOT')) exit('Access Denied');\r\n",'',$cachedata);
-			$cachedata = str_replace("\r\n\r\n?>",'',$cachedata);
-			ob_start();
-			print_r(htmlspecialchars($cachedata));
-			$data = ob_get_contents();
+			$cachedata = str_replace("\r\n\r\n?>",'',$cachedata);
+			ob_start();
+			print_r(htmlspecialchars($cachedata));
+			$data = ob_get_contents();
 			ob_end_clean();
 			$subnav = '查看缓存';
 		} else {		
@@ -293,8 +296,8 @@ if ($action == 'show') {
 		}
 	} else {		
 		redirect('缓存文件不存在', $url);
-	}
-}
+	}
+}
 
 // 重建数据
 if($action == 'rebuild') {
@@ -381,5 +384,5 @@ if ($action == 'js') {
 
 $navlink_L = ' &raquo; <a href="admincp.php?job=cache">系统维护</a>'.($subnav ? ' &raquo; '.$subnav : '');
 cpheader();
-include PrintEot('cache');
+include PrintEot('cache');
 ?>

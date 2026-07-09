@@ -48,15 +48,20 @@ if($action == 'addattachtoarticle') {
 	// 修改附件
 	$oldattach = array();	
 	if ($article['attachments']){
-		$oldattach = unserialize($article['attachments']);
+		$oldattach = unserialize(stripslashes_array($article['attachments']));
+		if (!is_array($oldattach)) {
+			$oldattach = array();
+		}
 	}
 	$searcharray = array();
 	$replacearray = array();
 	require_once(SABLOG_ROOT.'admin/uploadfiles.php');
 	if ($attachs){
-		$attachs=unserialize($attachs);
-		foreach ($attachs as $key => $value){
-			$oldattach[$key] = $value;
+		$attachs=unserialize(stripslashes_array($attachs));
+		if (is_array($attachs)) {
+			foreach ($attachs as $key => $value){
+				$oldattach[$key] = $value;
+			}
 		}
 	}
 	if ($oldattach){

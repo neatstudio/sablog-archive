@@ -290,7 +290,7 @@ function footer() {
 
 // 同上
 function upload($aid){
-	global $article, $attachmentids, $options;
+	global $article, $attachmentids, $options, $DB, $db_prefix;
 	if ($article['image'][$aid]) {
 		$attachmentids[]=$aid;
 		return "<a href=\"".$options['url']."attachment.php?id={$article['image'][$aid][0]}\" target=\"_blank\"><img src=\"".$options['url']."{$article['image'][$aid][1]}\" border=\"0\" alt=\"大小: {$article['image'][$aid][2]}&#13;尺寸: {$article['image'][$aid][3]} x {$article['image'][$aid][4]}&#13;浏览: {$article['image'][$aid][5]} 次&#13;点击打开新窗口浏览全图\" width=\"{$article['image'][$aid][3]}\" height=\"{$article['image'][$aid][4]}\" /></a>";
@@ -298,6 +298,35 @@ function upload($aid){
 		$attachmentids[]=$aid;
 		return "<a href=\"".$options['url']."attachment.php?id={$article['file'][$aid][0]}\" title=\"{$article['file'][$aid][2]}, 下载次数:{$article['file'][$aid][3]}\" target=\"_blank\">{$article['file'][$aid][1]}</a>";
 	} else {
+		// 如果文章attachments字段为空或损坏，直接从数据库查询
+		$attachinfo = $DB->fetch_one_array("SELECT attachmentid,filename,filetype,filesize,filepath,thumb_filepath,downloads FROM {$db_prefix}attachments WHERE attachmentid='" . intval($aid) . "'");
+		if ($attachinfo) {
+			$a_path = SABLOG_ROOT . $options['attachments_dir'] . $attachinfo['filepath'];
+			if (file_exists($a_path)) {
+				$attachmentids[] = $aid;
+				$a_ext = strtolower(getextension($attachinfo['filename']));
+				$a_size = sizecount($attachinfo['filesize']);
+				if ($a_ext == 'gif' || $a_ext == 'jpg' || $a_ext == 'jpeg' || $a_ext == 'png') {
+					$imagesize = @getimagesize($a_path);
+					$a_thumb_path = $options['attachments_dir'] . $attachinfo['thumb_filepath'];
+					if ($attachinfo['thumb_filepath'] && $options['attachments_thumbs'] && file_exists(SABLOG_ROOT . $options['attachments_dir'] . $attachinfo['thumb_filepath'])) {
+						return "<a href=\"" . $options['url'] . "attachment.php?id={$attachinfo['attachmentid']}\" target=\"_blank\"><img src=\"" . $options['url'] . "{$a_thumb_path}\" border=\"0\" alt=\"大小: {$a_size}&#13;尺寸: {$imagesize[0]} x {$imagesize[1]}&#13;浏览: {$attachinfo['downloads']} 次&#13;点击打开新窗口浏览全图\" width=\"{$imagesize[0]}\" height=\"{$imagesize[1]}\" /></a>";
+					} else {
+						$size = explode('x', strtolower($options['attachments_thumbs_size']));
+						$im = scale_image([
+							"max_width"  => $size[0],
+							"max_height" => $size[1],
+							"cur_width"  => $imagesize[0],
+							"cur_height" => $imagesize[1]
+						]);
+						$a_url_path = $options['attachments_dir'] . $attachinfo['filepath'];
+						return "<a href=\"" . $options['url'] . "attachment.php?id={$attachinfo['attachmentid']}\" target=\"_blank\"><img src=\"" . $options['url'] . "{$a_url_path}\" border=\"0\" alt=\"大小: {$a_size}&#13;尺寸: {$im['img_width']} x {$im['img_height']}&#13;浏览: {$attachinfo['downloads']} 次&#13;点击打开新窗口浏览全图\" width=\"{$im['img_width']}\" height=\"{$im['img_height']}\" /></a>";
+					}
+				} else {
+					return "<a href=\"" . $options['url'] . "attachment.php?id={$attachinfo['attachmentid']}\" title=\"{$a_size}, 下载次数:{$attachinfo['downloads']}\" target=\"_blank\">{$attachinfo['filename']}</a>";
+				}
+			}
+		}
 		return "[attach=$aid]";
 	}
 }

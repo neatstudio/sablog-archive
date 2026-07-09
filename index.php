@@ -165,18 +165,19 @@ if(in_array($action, ['index', 'finduser', 'search', 'tags'])){
                     $article['allowread'] = true;
                     if(empty($article['description'])){
                         //附件
+                        require_once(SABLOG_ROOT . 'include/func_attachment.php');
                         if($article['attachments']){
-                            $attachs = unserialize($article['attachments']);
+                            $attachs = unserialize(stripslashes_array($article['attachments']));
                             if(is_array($attachs)){
                                 foreach($attachs AS $attach){
-                                    $a_path = $options['attachments_dir'] . '/' . $attach['filepath'];
+                                    $a_path = SABLOG_ROOT . $options['attachments_dir'] . '/' . $attach['filepath'];
                                     if(file_exists($a_path)){
                                         $a_ext = strtolower(getextension($attach['filename']));
                                         if($a_ext == 'gif' || $a_ext == 'jpg' || $a_ext == 'jpeg' || $a_ext == 'png'){
                                             $imagesize = @getimagesize($a_path);
                                             $a_size = sizecount($attach['filesize']);
                                             $a_thumb_path = $options['attachments_dir'] . $attach['thumb_filepath'];
-                                            if($attach['thumb_filepath'] && $options['attachments_thumbs'] && file_exists($a_thumb_path)){
+                                            if($attach['thumb_filepath'] && $options['attachments_thumbs'] && file_exists(SABLOG_ROOT . $a_thumb_path)){
                                                 $article['image'][$attach['attachmentid']] = [
                                                     $attach['attachmentid'],
                                                     $a_thumb_path,
@@ -195,9 +196,10 @@ if(in_array($action, ['index', 'finduser', 'search', 'tags'])){
                                                     "cur_width"  => $imagesize[0],
                                                     "cur_height" => $imagesize[1]
                                                 ]);
+                                                $a_url_path = $options['attachments_dir'] . '/' . $attach['filepath'];
                                                 $article['image'][$attach['attachmentid']] = [
                                                     $attach['attachmentid'],
-                                                    $a_path,
+                                                    $a_url_path,
                                                     $a_size,
                                                     $im['img_width'],
                                                     $im['img_height'],
@@ -217,22 +219,22 @@ if(in_array($action, ['index', 'finduser', 'search', 'tags'])){
                                         }
                                     }
                                 }
-                                //如果空,释放掉变量
-                                $attachmentids = [];
+                            }
+                        }
+                        // 无论 attachments 字段是否为空，都解析 [attach=xx] 标签
+                        $attachmentids = [];
 
-                                // $article['content'] = preg_replace("/\[attach=(\d+)\]/ie", "upload('\\1')", $article['content']);
-                                $article['content'] = preg_replace_callback("/\[attach=(\d+)\]/i", function(&$matches) {
-                                    return upload($matches[1]);
-                                }, $article['content']);
+                        // $article['content'] = preg_replace("/\[attach=(\d+)\]/ie", "upload('\\1')", $article['content']);
+                        $article['content'] = preg_replace_callback("/\[attach=(\d+)\]/i", function(&$matches) {
+                            return upload($matches[1]);
+                        }, $article['content']);
 
-                                foreach($attachmentids as $key => $value){
-                                    if($article['image'][$value]){
-                                        unset($article['image'][$value]);
-                                    }
-                                    if($article['file'][$value]){
-                                        unset($article['file'][$value]);
-                                    }
-                                }
+                        foreach($attachmentids as $key => $value){
+                            if($article['image'][$value]){
+                                unset($article['image'][$value]);
+                            }
+                            if($article['file'][$value]){
+                                unset($article['file'][$value]);
                             }
                         }
                     } else{
@@ -364,19 +366,19 @@ elseif($_GET['action'] == 'show'){
             }
         }
         //附件
+        require_once(SABLOG_ROOT . 'include/func_attachment.php');
         if($article['attachments']){
-            require_once(SABLOG_ROOT . 'include/func_attachment.php');
-            $attachs = unserialize($article['attachments']);
+            $attachs = unserialize(stripslashes_array($article['attachments']));
             if(is_array($attachs)){
                 foreach($attachs AS $attach){
-                    $a_path = $options['attachments_dir'] . $attach['filepath'];
+                    $a_path = SABLOG_ROOT . $options['attachments_dir'] . $attach['filepath'];
                     if(file_exists($a_path)){
                         $a_ext = strtolower(getextension($attach['filename']));
                         if($a_ext == 'gif' || $a_ext == 'jpg' || $a_ext == 'jpeg' || $a_ext == 'png'){
                             $imagesize = @getimagesize($a_path);
                             $a_size = sizecount($attach['filesize']);
                             $a_thumb_path = $options['attachments_dir'] . $attach['thumb_filepath'];
-                            if($attach['thumb_filepath'] && $options['attachments_thumbs'] && file_exists($a_thumb_path)){
+                            if($attach['thumb_filepath'] && $options['attachments_thumbs'] && file_exists(SABLOG_ROOT . $a_thumb_path)){
                                 $article['image'][$attach['attachmentid']] = [
                                     $attach['attachmentid'],
                                     $a_thumb_path,
@@ -395,9 +397,10 @@ elseif($_GET['action'] == 'show'){
                                     'cur_width'  => $imagesize[0],
                                     'cur_height' => $imagesize[1]
                                 ]);
+                                $a_url_path = $options['attachments_dir'] . $attach['filepath'];
                                 $article['image'][$attach['attachmentid']] = [
                                     $attach['attachmentid'],
-                                    $a_path,
+                                    $a_url_path,
                                     $a_size,
                                     $im['img_width'],
                                     $im['img_height'],
@@ -412,22 +415,21 @@ elseif($_GET['action'] == 'show'){
                         }
                     }
                 }
-                //如果空,释放掉变量
-                $attachmentids = [];
+            }
+        }
+        // 无论 attachments 字段是否为空，都解析 [attach=xx] 标签
+        $attachmentids = [];
+        // $article['content'] = preg_replace("/\[attach=(\d+)\]/ie", "upload('\\1')", $article['content']);
+        $article['content'] = preg_replace_callback("/\[attach=(\d+)\]/is", function($matches) {
+            return upload($matches[1]);
+        }, $article['content']);
 
-                // $article['content'] = preg_replace("/\[attach=(\d+)\]/ie", "upload('\\1')", $article['content']);
-                $article['content'] = preg_replace_callback("/\[attach=(\d+)\]/is", function(&$matches) {
-                    return upload($matches[1]);
-                }, $article['content']);
-
-                foreach($attachmentids as $key => $value){
-                    if($article['image'][$value]){
-                        unset($article['image'][$value]);
-                    }
-                    if($article['file'][$value]){
-                        unset($article['file'][$value]);
-                    }
-                }
+        foreach($attachmentids as $key => $value){
+            if($article['image'][$value]){
+                unset($article['image'][$value]);
+            }
+            if($article['file'][$value]){
+                unset($article['file'][$value]);
             }
         }
         // 获取附件结束
