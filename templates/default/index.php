@@ -29,7 +29,7 @@ print <<<EOT
 <meta name="keywords" content="$options[meta_keywords],$pagetitle" />
 <meta name="description" content="$options[meta_description],$content" />
 <meta name="author" content="gouki,膘叔" />
-<link rel="dns-prefetch" href="//$options[url]" />
+<link rel="dns-prefetch" href="//neatstudio.com" />
 <link rel="dns-prefetch" href="//meishi.qq.com" />
 <link rel="dns-prefetch" href="//tajs.qq.com" />
 <link rel="alternate" title="$options[name]" href="rss.php" type="application/rss+xml" />
@@ -43,9 +43,15 @@ print <<<EOT
 $stylevar[include_jquery]
 <script>$stylevar[jquery_tab]</script>
 $stylevar[ggad2]
-<title>$options[title]</title>
+<style>
+#page-loading { position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; z-index:99999; }
+#page-loading.done { display:none; }
+</style>
+<title>$options[title]（Neatstudio.COM）</title>
 </head>
 <body>
+<div id="page-loading"></div>
+<script>document.addEventListener('DOMContentLoaded', function(){ document.getElementById('page-loading').className='done'; });</script>
 <div id="outmain">
 <div id="header">
     <div>
