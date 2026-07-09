@@ -1,0 +1,80 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # 文章详情页: show-articleid-page.shtml
+    RewriteRule ^show-(\d+)-(\d+)\.shtml$ index.php?action=show&id=$1&page=$2 [L,QSA]
+    RewriteRule ^show-(\d+)\.shtml$ index.php?action=show&id=$1 [L,QSA]
+
+    # 分类列表: category-cid-page.shtml
+    RewriteRule ^category-(\d+)-(\d+)\.shtml$ index.php?action=index&cid=$1&page=$2 [L,QSA]
+    RewriteRule ^category-(\d+)\.shtml$ index.php?action=index&cid=$1 [L,QSA]
+
+    # 日期归档: archives-year-month-page.shtml
+    RewriteRule ^archives-(\d{6})-(\d+)\.shtml$ index.php?action=index&setdate=$1&page=$2 [L,QSA]
+    RewriteRule ^archives-(\d{6})\.shtml$ index.php?action=index&setdate=$1 [L,QSA]
+    RewriteRule ^archives\.shtml$ index.php?action=index&setdate=all [L,QSA]
+
+    # 标签列表: tagslist-page.shtml
+    RewriteRule ^tagslist-(\d+)\.shtml$ index.php?action=tagslist&page=$1 [L,QSA]
+    RewriteRule ^tagslist\.shtml$ index.php?action=tagslist [L,QSA]
+
+    # 评论列表: comments-page.shtml
+    RewriteRule ^comments-(\d+)\.shtml$ index.php?action=comments&page=$1 [L,QSA]
+    RewriteRule ^comments\.shtml$ index.php?action=comments [L,QSA]
+
+    # 搜索: search-page.shtml
+    RewriteRule ^search-(\d+)\.shtml$ index.php?action=search&page=$1 [L,QSA]
+    RewriteRule ^search\.shtml$ index.php?action=search [L,QSA]
+
+    # 链接页面
+    RewriteRule ^links\.shtml$ index.php?action=links [L,QSA]
+
+    # 用户相关
+    RewriteRule ^reg\.shtml$ index.php?action=reg [L,QSA]
+    RewriteRule ^login\.shtml$ index.php?action=login [L,QSA]
+
+    # RSS 订阅
+    RewriteRule ^rss\.xml$ rss.php [L,QSA]
+
+    # 站点地图
+    RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
+</IfModule>
+
+# 禁止访问敏感目录
+<IfModule mod_authz_core.c>
+    <RequireAll>
+        Require all granted
+    </RequireAll>
+</IfModule>
+
+# PHP 设置（根据实际环境调整）
+<IfModule mod_php7.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+    php_value memory_limit 128M
+    php_value max_execution_time 300
+</IfModule>
+
+# 静态文件缓存
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 30 days"
+    ExpiresByType image/png "access plus 30 days"
+    ExpiresByType image/gif "access plus 30 days"
+    ExpiresByType image/svg+xml "access plus 30 days"
+    ExpiresByType text/css "access plus 30 days"
+    ExpiresByType application/javascript "access plus 30 days"
+    ExpiresByType application/x-font-woff "access plus 30 days"
+</IfModule>
+
+# 禁止访问敏感文件
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "(admin|include|cache|templates).*\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
