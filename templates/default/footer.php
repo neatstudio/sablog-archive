@@ -42,17 +42,21 @@ jquery(function(){
    if ( jquery.support.pjax ) {
       jquery(document).pjax('a','#page');
       // 添加 PJAX 过渡动画，减少页面闪烁感
+      // 点击时立即淡出并清空内容，避免旧内容残留
       jquery(document).on('pjax:click', function() {
-         jquery('#page').css('opacity', '0.6');
+         jquery('#page').fadeTo(100, 0.3);
       });
-      jquery(document).on('pjax:send', function() {
-         jquery('#page').css('opacity', '0.6');
+      // 开始发送请求时保持半透明
+      jquery(document).on('pjax:start', function() {
+         jquery('#page').css('opacity', '0.3');
       });
-      jquery(document).on('pjax:complete', function() {
-         jquery('#page').css('opacity', '1');
+      // 收到响应后淡入新内容
+      jquery(document).on('pjax:end', function() {
+         jquery('#page').fadeTo(200, 1);
       });
+      // 出错时恢复正常显示
       jquery(document).on('pjax:error', function() {
-         jquery('#page').css('opacity', '1');
+         jquery('#page').fadeTo(200, 1);
       });
    }
 })
