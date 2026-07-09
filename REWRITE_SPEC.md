@@ -368,12 +368,20 @@ class RssController extends Controller
 
 ---
 
-## 六、后台管理（Laravel Filament / Nova / 自定义）
+## 六、后台管理（Laravel Filament 5）
 
-### 6.1 推荐方案：Laravel Filament
+### 6.1 推荐方案：Laravel Filament 5
 
 ```php
 // app/Filament/Resources/ArticleResource.php
+namespace App\Filament\Resources;
+
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+
 class ArticleResource extends Resource
 {
     protected static ?string $model = Article::class;
@@ -381,38 +389,54 @@ class ArticleResource extends Resource
     
     public static function form(Form $form): Form
     {
-        return $form->schema([
-            TextInput::make('title')->required(),
-            Select::make('cid')->relationship('category', 'name'),
-            RichEditor::make('content'),
-            TextInput::make('keywords'),
-            Textarea::make('description'),
-            Toggle::make('visible')->default(true),
-            Toggle::make('stick')->default(false),
-            DateTimePicker::make('dateline')->default(now()),
-            // 附件上传组件
-            FileUpload::make('new_attachments')
-                ->multiple()
-                ->directory('attachments')
-                ->imageEditor()
-                ->preserveFilenames(),
-        ]);
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('title')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\Select::make('cid')
+                    ->relationship('category', 'name')
+                    ->required(),
+                Forms\Components\RichEditor::make('content'),
+                Forms\Components\TextInput::make('keywords'),
+                Forms\Components\Textarea::make('description'),
+                Forms\Components\Toggle::make('visible')
+                    ->default(true),
+                Forms\Components\Toggle::make('stick')
+                    ->default(false),
+                Forms\Components\DateTimePicker::make('dateline')
+                    ->default(now()),
+                // 附件上传组件
+                Forms\Components\FileUpload::make('new_attachments')
+                    ->multiple()
+                    ->directory('attachments')
+                    ->imageEditor()
+                    ->preserveFilenames(),
+            ]);
     }
     
     public static function table(Table $table): Table
     {
-        return $table->columns([
-            TextColumn::make('articleid')->sortable(),
-            TextColumn::make('title')->searchable(),
-            TextColumn::make('category.name'),
-            TextColumn::make('user.username'),
-            TextColumn::make('dateline')->dateTime(),
-            IconColumn::make('visible')->boolean(),
-            IconColumn::make('stick')->boolean(),
-        ])->filters([
-            SelectFilter::make('cid')->relationship('category', 'name'),
-            TernaryFilter::make('visible'),
-        ]);
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('articleid')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('title')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('category.name'),
+                Tables\Columns\TextColumn::make('user.username'),
+                Tables\Columns\TextColumn::make('dateline')
+                    ->dateTime(),
+                Tables\Columns\IconColumn::make('visible')
+                    ->boolean(),
+                Tables\Columns\IconColumn::make('stick')
+                    ->boolean(),
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('cid')
+                    ->relationship('category', 'name'),
+                Tables\Filters\TernaryFilter::make('visible'),
+            ]);
     }
 }
 ```
@@ -675,8 +699,8 @@ volumes:
 
 | 层级 | 技术选型 | 说明 |
 |------|----------|------|
-| 框架 | Laravel 10/11 + PHP 8.2 | 最新 LTS 版本 |
-| 后台 | Filament 3 | 快速搭建管理后台 |
+| 框架 | Laravel 12 + PHP 8.4 | 最新版本 |
+| 后台 | Filament 5 | 快速搭建管理后台 |
 | 数据库 | MySQL 8.0 / MariaDB 10.6 | 保留现有数据 |
 | 缓存 | Redis 7 | 缓存 + Session + Queue |
 | 搜索 | Laravel Scout + MeiliSearch | 替代 LIKE 搜索 |
