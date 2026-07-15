@@ -14,7 +14,7 @@
 ## 安装步骤
 
 1. 将代码上传到网站根目录
-2. 修改 `config.php`，填写数据库连接信息
+2. 复制 `config.example.php` 为 `config.php`，并根据实际环境填写数据库连接信息
 3. 访问 `install/` 目录进行安装
 4. 安装完成后**删除 `install/` 目录**
 5. 确保 `cache/` 和 `attachments/` 目录可写
@@ -38,7 +38,8 @@
 ├── templates/      # 模板目录
 │   ├── admin/      # 后台模板
 │   └── default/    # 前台模板
-├── config.php      # 数据库配置文件
+├── config.example.php  # 数据库配置示例文件
+├── config.php      # 数据库配置文件（由用户自行创建，已被 .gitignore 忽略）
 ├── index.php       # 入口文件
 ├── global.php      # 全局函数
 ├── attachment.php  # 附件下载
@@ -70,6 +71,7 @@
 - 默认管理员账号需在安装时设置
 - 所有硬编码的域名、品牌信息已替换为占位符，使用前请根据实际修改
 - **安装完成后务必删除 `install/` 目录**
+- `config.php` 已被 `.gitignore` 忽略，生产环境的真实数据库凭据不会进入版本控制。部署时请从 `config.example.php` 复制并修改
 
 ## 更新日志
 
